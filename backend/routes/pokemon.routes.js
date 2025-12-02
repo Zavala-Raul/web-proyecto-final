@@ -1,6 +1,7 @@
 import express from 'express';
 import db from '../database.js';
 import axios from 'axios';
+import { verifyToken } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
@@ -74,8 +75,10 @@ const getOrFetchSpeciesData = (speciesId) => {
 
 
 // Metodos de API
-router.post("/capturar", async (req, res) => {
-    const { trainerId, speciesId, nickname } = req.body;
+router.post("/capturar", verifyToken, async (req, res) => {
+    const { speciesId, nickname } = req.body;
+
+    const trainerId = req.user.id;
 
     if (!trainerId || !speciesId) {
         return res.status(400).json({ error: "trainerId y speciesId son requeridos." });
@@ -114,9 +117,8 @@ router.post("/capturar", async (req, res) => {
     }
 });
 
-router.get("/trainers/:id/pokemon", (req, res) => {
-    const { id } = req.params;
-
+router.get("/mis-pokemon", verifyToken, (req, res) => {
+    const userId = req.user.id; 
     const sql = `
         SELECT
             cp.CapturedPokemonID,
@@ -135,18 +137,19 @@ router.get("/trainers/:id/pokemon", (req, res) => {
         ORDER BY cp.DateCaptured DESC
     `;
 
-    db.all(sql, [id], (err, rows) => {
+    db.all(sql, [userId], (err, rows) => {
         if (err) {
-            console.error("Error en GET /api/trainers/:id/pokemon:", err.message);
-            return res.status(500).json({ error: "Error al consultar la base de datos." });
+            console.error("Error en GET /api/mis-pokemon:", err.message);
+            return res.status(500).json({ error: "Error interno." });
         }
         res.json(rows); 
     });
 });
 
-router.put("/pokemon/:id", (req, res) => {
+router.put("/pokemon/:id", verifyToken, (req, res) => {
     const { nickname } = req.body;
-    const { id } = req.params; 
+    const pokemonId = req.params.id;
+    const userId = req.user.id;
 
     if (nickname === undefined) {
         return res.status(400).json({ error: "El campo 'nickname' es requerido." });
@@ -154,8 +157,8 @@ router.put("/pokemon/:id", (req, res) => {
 
     const newNickname = nickname || null; 
 
-    const sql = 'UPDATE CapturedPokemon SET Nickname = ? WHERE CapturedPokemonID = ?';
-    const params = [newNickname, id];
+    const sql = 'UPDATE CapturedPokemon SET Nickname = ? WHERE CapturedPokemonID = ? AND TrainerID = ?';
+    const params = [newNickname, pokemonId, userId];
 
     db.run(sql, params, function(err) {
         if (err) {
@@ -163,23 +166,27 @@ router.put("/pokemon/:id", (req, res) => {
             return res.status(500).json({ error: "Error al actualizar la base de datos." });
         }
         if (this.changes === 0) {
-            return res.status(404).json({ error: "Pokémon capturado no encontrado." });
+            return res.status(404).json({ error: "Pokémon no encontrado o no tienes permiso para editarlo." });
         }
         res.json({ message: "Apodo actualizado exitosamente." });
     });
 });
 
-router.delete("/pokemon/:id", (req, res) => {
-    const { id } = req.params;
-    const sql = 'DELETE FROM CapturedPokemon WHERE CapturedPokemonID = ?';
+router.delete("/pokemon/:id", verifyToken, (req, res) => {
+    const { pokemonId } = req.params;
+    const userId = req.user.id;
 
-    db.run(sql, id, function(err) {
+    const sql = 'DELETE FROM CapturedPokemon WHERE CapturedPokemonID = ? AND TrainerID = ?';
+
+    const params = [pokemonId, userId];
+
+    db.run(sql, params, function(err) {
         if (err) {
             console.error("Error en DELETE /api/pokemon/:id:", err.message);
             return res.status(500).json({ error: "Error al eliminar de la base de datos." });
         }
         if (this.changes === 0) {
-            return res.status(404).json({ error: "Pokémon capturado no encontrado." });
+            return res.status(404).json({ error: "Pokémon no encontrado o no tienes permiso para liberarlo." });
         }
         res.json({ message: "Pokémon liberado exitosamente." });
     });

@@ -1,8 +1,10 @@
 import bcrypt from 'bcrypt';
 import db from '../database.js';
 import express from 'express';
+import jwt from 'jsonwebtoken';
 
-const router = express.Router(); // Usamos router, no 'app'
+const SECRET_KEY = "SecretoMoment"; 
+const router = express.Router(); 
 const saltRounds = 10;
 
 // Tabla de Trainers
@@ -64,14 +66,22 @@ router.post("/login", (req, res) => {
         try {
             const match = await bcrypt.compare(Password, trainer.PasswordHash);
 
+            
             if (match) {
 
+                const token = jwt.sign(
+                    { id: trainer.TrainerID, username: trainer.Username }, 
+                    SECRET_KEY, 
+                    { expiresIn: '2h' } 
+                );
+
                 res.json({
-                    TrainerID: trainer.TrainerID,
-                    FirstName: trainer.FirstName,
-                    LastName: trainer.LastName,
-                    Username: trainer.Username
+                    message: "Login exitoso",
+                    token: token, 
+                    username: trainer.Username
                 });
+
+                
             } else {
                 return res.status(401).json({ error: "Credenciales inválidas." });
             }
