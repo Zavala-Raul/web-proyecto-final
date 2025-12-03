@@ -1,64 +1,96 @@
 // frontend/src/App.jsx
 import React from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, Link } from 'react-router-dom';
 import Register from './pages/Register'; 
 import Login from './pages/login';
+import Game from './pages/Game'; 
+import Gallery from './pages/Gallery';
 import './App.css'; 
 
-// --- COMPONENTES TEMPORALES (Placeholders) ---
-// Estos evitan que la app falle mientras creamos los archivos reales
-const GamePlaceholder = () => (
-  <div style={{ padding: '20px', textAlign: 'center' }}>
-    <h2>🎮 Pantalla del Juego</h2>
-    <p>¡Si ves esto, el Login funcionó y te redirigió bien!</p>
-    <p>(Aquí pondremos el código real del juego después)</p>
-  </div>
-);
 
-const GaleriaPlaceholder = () => (
-  <div style={{ padding: '20px', textAlign: 'center' }}>
-    <h2>📸 Galería de Capturas</h2>
-    <p>(Aquí pondremos la lista de Pokémon después)</p>
-  </div>
-);
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
+const PublicRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    return <Navigate to="/game" replace />;
+  }
+  return children;
+};
 
 function App() {
   const navigate = useNavigate();
-
-  // Función simple para cerrar sesión
-  const handleLogout = () => {
-    localStorage.removeItem('token'); // Borra el token
-    localStorage.removeItem('username');
-    navigate('/login'); // Te regresa al login
-  };
-
-  // Verificamos si hay un usuario logueado para mostrar el botón de salir
   const isLoggedIn = !!localStorage.getItem('token'); 
+
+  const handleLogout = () => {
+    localStorage.removeItem('token'); 
+    localStorage.removeItem('username');
+    window.location.href = '/login'; 
+  };
 
   return (
     <div className="App">
       <header>
         <h1>Poké-Captura</h1>
-        {/* Solo mostramos el botón si hay token (truco visual simple) */}
+        
+        {/* MENÚ DE NAVEGACIÓN: Solo se ve si estás logueado */}
         {isLoggedIn && (
-            <button onClick={handleLogout} style={{ float: 'right' }}>
-                Cerrar Sesión
-            </button>
+            <nav style={{ display: 'flex', gap: '20px', alignItems: 'center', justifyContent: 'center', marginTop: '10px' }}>
+                {/* Usamos Link para navegar sin recargar la página */}
+                <Link to="/game" className="nav-link">🎮 Jugar</Link>
+                <Link to="/gallery" className="nav-link">📸 Mi PC</Link>
+                
+                <button onClick={handleLogout} style={{ backgroundColor: '#ff4444', color: 'white' }}>
+                    Cerrar Sesión
+                </button>
+            </nav>
         )}
       </header>
       
       <main>
         <Routes>
-          {/* Redirige la raíz '/' al Login por defecto */}
+          {/* CASO 1: Ruta Raíz 
+             Si entras a '/', el PublicRoute decidirá:
+             - Si estás logueado -> Te manda a /game
+             - Si NO estás logueado -> Te manda a /login (porque el hijo es Login)
+          */}
           <Route path="/" element={<Navigate to="/login" />} />
           
-          {/* Rutas de Auth */}
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
+          {/* CASO 2: Rutas Públicas (Login/Register)
+             Las envolvemos en PublicRoute para que los logueados no entren aquí
+          */}
+          <Route path="/login" element={
+              <PublicRoute>
+                  <Login />
+              </PublicRoute>
+          } />
           
-          {/* Rutas Protegidas (Usando los placeholders) */}
-          <Route path="/game" element={<GamePlaceholder />} />
-          <Route path="/galeria" element={<GaleriaPlaceholder />} />
+          <Route path="/register" element={
+              <PublicRoute>
+                  <Register />
+              </PublicRoute>
+          } />
+          
+          {/* CASO 3: Rutas Privadas (Game/Gallery)
+             Las envolvemos en ProtectedRoute para que los NO logueados no entren
+          */}
+          <Route path="/game" element={
+              <ProtectedRoute>
+                  <Game />
+              </ProtectedRoute>
+          } />
+          
+          <Route path="/gallery" element={
+              <ProtectedRoute>
+                  <Gallery />
+              </ProtectedRoute>
+          } />
         </Routes>
       </main>
     </div>

@@ -173,11 +173,21 @@ router.put("/pokemon/:id", verifyToken, (req, res) => {
 });
 
 router.delete("/pokemon/:id", verifyToken, (req, res) => {
-    const { pokemonId } = req.params;
+    const pokemonId = req.params.id;
     const userId = req.user.id;
 
-    const sql = 'DELETE FROM CapturedPokemon WHERE CapturedPokemonID = ? AND TrainerID = ?';
+    db.get("SELECT * FROM CapturedPokemon WHERE CapturedPokemonID = ?", [pokemonId], (err, row) => {
+        if (row) {
+            console.log("El Pokémon existe en la BD. Pertenece al TrainerID:", row.TrainerID);
+            if (row.TrainerID !== userId) {
+                console.log("¡ALERTA! El usuario intenta borrar un pokemon que NO es suyo.");
+            }
+        } else {
+            console.log("El Pokémon con ese ID NO existe en la base de datos.");
+        }
+    });
 
+    const sql = 'DELETE FROM CapturedPokemon WHERE CapturedPokemonID = ? AND TrainerID = ?';
     const params = [pokemonId, userId];
 
     db.run(sql, params, function(err) {
@@ -185,6 +195,7 @@ router.delete("/pokemon/:id", verifyToken, (req, res) => {
             console.error("Error en DELETE /api/pokemon/:id:", err.message);
             return res.status(500).json({ error: "Error al eliminar de la base de datos." });
         }
+        console.log(`Filas afectadas (deleted): ${this.changes}`);
         if (this.changes === 0) {
             return res.status(404).json({ error: "Pokémon no encontrado o no tienes permiso para liberarlo." });
         }

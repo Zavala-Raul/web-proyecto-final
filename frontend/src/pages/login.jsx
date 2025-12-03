@@ -24,7 +24,7 @@ function Login()
                 });
             
             localStorage.setItem('token', response.data.token);
-            localStorage.setItem('token', response.data.username);
+            localStorage.setItem('username', response.data.username);
 
             alert("¡Login exitoso!");
 

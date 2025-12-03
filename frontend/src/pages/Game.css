@@ -1,0 +1,42 @@
+/* frontend/src/Game.css */
+.game-container {
+    text-align: center;
+    padding: 20px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.pokemon-image-container {
+    margin: 20px 0;
+    height: 200px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pokemon-img {
+    width: 200px;
+    height: 200px;
+    transition: filter 0.3s ease; 
+}
+
+.silhouette {
+    filter: brightness(0); 
+    pointer-events: none; 
+}
+
+.hint-text {
+    font-size: 24px;
+    letter-spacing: 5px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.feedback-msg {
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.success { color: green; }
+.error { color: red; }
