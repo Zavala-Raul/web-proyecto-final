@@ -19,110 +19,90 @@ router.post("/register", async (req, res) => {
     try {
         const passwordHash = await bcrypt.hash(Password, saltRounds);
 
-        const sql = 'INSERT INTO Trainer (FirstName, LastName, Username, PasswordHash) VALUES (?,?,?,?)';
+        const sql = `
+                    INSERT INTO "Trainer" ("FirstName", "LastName", "Username", "PasswordHash") 
+                    VALUES ($1, $2, $3, $4) 
+                    RETURNING "TrainerID", "FirstName", "LastName", "Username"
+                `;        
         const params = [FirstName, LastName, Username, passwordHash];
 
-        db.run(sql, params, function(err) {
-            if (err) {
-                if (err.message.includes("UNIQUE constraint failed")) {
-                    return res.status(409).json({ error: "El nombre de usuario ya existe." });
-                }
-                console.error("Error en POST /api/register:", err.message);
-                return res.status(500).json({ error: "Error al registrar el entrenador." });
-            }
-            
-            res.status(201).json({
-                TrainerID: this.lastID,
-                FirstName,
-                LastName,
-                Username
-            });
-        });
-    } catch (hashError) {
-        console.error("Error en el hasheo:", hashError);
-        res.status(5.00).json({ error: "Error interno del servidor." });
+        const result = await db.query(sql, params);
+        res.status(201).json(result.rows[0]);
+
+    } catch (err) {
+        console.error(err);
+        if (err.code === '23505') {
+            return res.status(409).json({ error: "El nombre de usuario ya existe." });
+        }
+        res.status(500).json({ error: "Error al registrar usuario." });
     }
 });
 
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
     const { Username, Password } = req.body;
 
-    if (!Username || !Password) {
-        return res.status(400).json({ error: "Usuario y contraseña requeridos." });
-    }
+    try {
+        // CAMBIOS: Comillas y $1
+        const sql = 'SELECT * FROM "Trainer" WHERE "Username" = $1';
+        const result = await db.query(sql, [Username]);
 
-    const sql = "SELECT * FROM Trainer WHERE Username = ?";
-    
-    db.get(sql, [Username], async (err, trainer) => {
-        if (err) {
-            console.error("Error en POST /api/login:", err.message);
-            return res.status(500).json({ error: "Error al consultar la base de datos." });
+        if (result.rows.length === 0) {
+             return res.status(401).json({ error: "Credenciales inválidas." });
         }
 
-        if (!trainer) {
-            return res.status(401).json({ error: "Credenciales inválidas." }); 
-        }
+        const trainer = result.rows[0];
 
-        try {
-            const match = await bcrypt.compare(Password, trainer.PasswordHash);
+        const match = await bcrypt.compare(Password, trainer.PasswordHash);
 
+        if (match) {
+            const token = jwt.sign(
+                { id: trainer.TrainerID, username: trainer.Username }, 
+                SECRET_KEY, 
+                { expiresIn: '2h' } 
+            );
             
-            if (match) {
-
-                const token = jwt.sign(
-                    { id: trainer.TrainerID, username: trainer.Username }, 
-                    SECRET_KEY, 
-                    { expiresIn: '2h' } 
-                );
-
-                res.json({
-                    message: "Login exitoso",
-                    token: token, 
-                    username: trainer.Username
-                });
-
-                
-            } else {
-                return res.status(401).json({ error: "Credenciales inválidas." });
-            }
-        } catch (compareError) {
-            console.error("Error en la comparación de hash:", compareError);
-            res.status(500).json({ error: "Error interno del servidor." });
+            res.json({
+                message: "Login exitoso",
+                token: token, 
+                username: trainer.Username
+            });
+        } else {
+            return res.status(401).json({ error: "Credenciales inválidas." });
         }
-    });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error interno." });
+    }
 });
 
-router.get("/trainers", (req, res) => {
-    
-    // Seleccionamos explícitamente para NUNCA incluir los hashes
-    const sql = "SELECT TrainerID, FirstName, LastName, Username FROM Trainer";
-    
-    db.all(sql, [], (err, rows) => {
-        if (err) {
-            console.error("Error en GET /api/trainers:", err.message);
-            return res.status(500).json({ error: "Error al consultar la base de datos." });
-        }
-        res.json(rows); // Devuelve la lista de entrenadores
-    });
+router.get("/trainers", async (req, res) => {
+    try {
+        const sql = 'SELECT "TrainerID", "FirstName", "LastName", "Username" FROM "Trainer"';
+        const result = await db.query(sql);
+        res.json(result.rows);
+    }   catch (err) {
+        console.error("Error en GET /api/trainers:", err.message);
+        res.status(500).json({ error: "Error al consultar entrenadores." });
+    }
 });
 
-router.get("/trainers/:id", (req, res) => {
-    const sql = "SELECT TrainerID, FirstName, LastName, Username FROM Trainer WHERE TrainerID = ?";
-    const params = [req.params.id];
-
-    db.get(sql, params, (err, row) => {
-        if (err) {
-            console.error("Error en GET /api/trainers/:id:", err.message);
-            return res.status(500).json({ error: "Error al consultar la base de datos." });
-        }
-        if (!row) {
+router.get("/trainers/:id", async (req, res) => {
+    const { id } = req.params;
+    try {
+        const sql = 'SELECT "TrainerID", "FirstName", "LastName", "Username" FROM "Trainer" WHERE "TrainerID" = $1';
+        const result = await db.query(sql, [id]);
+        if (result.rows.length === 0) {
             return res.status(404).json({ error: "Entrenador no encontrado." });
         }
-        res.json(row);
-    });
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error("Error en GET /api/trainers/:id:", err.message);
+        res.status(500).json({ error: "Error al consultar entrenador." });
+    }
 });
 
-router.put("/trainers/:id", (req, res) => {
+router.put("/trainers/:id", async (req, res) => {
     const { FirstName, LastName } = req.body;
     const { id } = req.params;
 
@@ -130,35 +110,39 @@ router.put("/trainers/:id", (req, res) => {
         return res.status(400).json({ error: "FirstName y LastName son requeridos." });
     }
 
-    const sql = 'UPDATE Trainer SET FirstName = ?, LastName = ? WHERE TrainerID = ?';
-    const params = [FirstName, LastName, id];
-
-    db.run(sql, params, function(err) {
-        if (err) {
-            console.error("Error en PUT /api/trainers/:id:", err.message);
-            return res.status(500).json({ error: "Error al actualizar la base de datos." });
-        }
-        if (this.changes === 0) {
+    try {
+        const sql = `
+            UPDATE "Trainer" 
+            SET "FirstName" = $1, "LastName" = $2 
+            WHERE "TrainerID" = $3
+        `;
+        const params = [FirstName, LastName, id];
+        const result = await db.query(sql, params);
+        if (result.rowCount === 0) {
             return res.status(404).json({ error: "Entrenador no encontrado." });
         }
-        res.json({ message: "Perfil actualizado exitosamente." });
-    });
+        res.json({ message: "Entrenador actualizado exitosamente." });
+
+    } catch (err) {
+        console.error("Error en PUT /api/trainers/:id:", err.message);
+        res.status(500).json({ error: "Error al actualizar entrenador." });
+    }
 });
 
-router.delete("/trainers/:id", (req, res) => {
+router.delete("/trainers/:id", async (req, res) => {
     const { id } = req.params;
-    const sql = 'DELETE FROM Trainer WHERE TrainerID = ?';
 
-    db.run(sql, id, function(err) {
-        if (err) {
-            console.error("Error en DELETE /api/trainers/:id:", err.message);
-            return res.status(500).json({ error: "Error al eliminar de la base de datos." });
-        }
-        if (this.changes === 0) {
+    try {
+        const sql = 'DELETE FROM "Trainer" WHERE "TrainerID" = $1';
+        const result = await db.query(sql, [id]);
+        if (result.rowCount === 0) {
             return res.status(404).json({ error: "Entrenador no encontrado." });
         }
         res.json({ message: "Entrenador eliminado exitosamente." });
-    });
+    } catch (err) {
+        console.error("Error en DELETE /api/trainers/:id:", err.message);
+        res.status(500).json({ error: "Error al eliminar entrenador." });
+    }
 });
 
 export default router;

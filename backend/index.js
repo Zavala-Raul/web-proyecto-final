@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import db from './database.js';
 
 import trainerRoutes from './routes/trainers.routes.js';
 import pokemonRoutes from './routes/pokemon.routes.js';
