@@ -36,20 +36,22 @@ function App() {
 
   return (
     <div className="App">
+      <section className="dark-bar"></section>
       <header>
-        <h1>Poké-Captura</h1>
-        
         {/* MENÚ DE NAVEGACIÓN: Solo se ve si estás logueado */}
         {isLoggedIn && (
-            <nav style={{ display: 'flex', gap: '20px', alignItems: 'center', justifyContent: 'center', marginTop: '10px' }}>
-                {/* Usamos Link para navegar sin recargar la página */}
-                <Link to="/game" className="nav-link">🎮 Jugar</Link>
-                <Link to="/gallery" className="nav-link">📸 Mi PC</Link>
-                
-                <button onClick={handleLogout} style={{ backgroundColor: '#ff4444', color: 'white' }}>
-                    Cerrar Sesión
-                </button>
-            </nav>
+            <>
+              <h1>Poké-Captura</h1>
+              <nav style={{ display: 'flex', gap: '20px', alignItems: 'center', justifyContent: 'center', marginTop: '10px' }}>
+                  {/* Usamos Link para navegar sin recargar la página */}
+                  <Link to="/game" className="nav-link">🎮 Jugar</Link>
+                  <Link to="/gallery" className="nav-link">📸 Mi PC</Link>
+                  
+                  <button onClick={handleLogout} style={{ backgroundColor: '#ff4444', color: 'white' }}>
+                      Cerrar Sesión
+                  </button>
+              </nav>
+            </>
         )}
       </header>
       

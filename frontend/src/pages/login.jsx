@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'
+import './login.css';
+import loginIcon from '../assets/login-icon.png';
 
 const API_URL = "http://localhost:4000/api";
 
@@ -42,20 +44,23 @@ function Login()
         }
     };
     return (<div className="login-container">
-                <h2>Iniciar Sesión</h2>
+                <div className="login-header">
+                    <img className="login-icon" src={loginIcon} alt="Pokeball"></img>
+                    <h2>Iniciar Sesión</h2>
+                </div>
                 <form onSubmit={handleLogin}>
                     <div className="form-group">
-                        <label>Usuario:</label>
                         <input 
                             type="text" 
+                            placeholder="Nombre de usuario"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                         />
                     </div>
                     <div className="form-group">
-                        <label>Contraseña:</label>
                         <input 
                             type="password" 
+                            placeholder="Contraseña"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
@@ -65,7 +70,12 @@ function Login()
                 {error && <p className="error-message">{error}</p>}
                 
                 {/* Botón para ir a registrarse si no tienes cuenta */}
-                <p>¿No tienes cuenta? <button onClick={() => navigate('/register')}>Regístrate aquí</button></p>
+                <div className="signup-container">
+                    <span>¿No tienes cuenta?</span>
+                    <button type="button" onClick={() => navigate('/register')}>
+                        Regístrate aquí
+                    </button>
+                </div>
             </div>)
 }
 export default Login;
