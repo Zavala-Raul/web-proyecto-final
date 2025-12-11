@@ -5,8 +5,23 @@ import { verifyToken } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
-const NATURES = ["Adamant", "Bashful", "Bold", "Brave", "Calm", "Careful", "Docile", "Gentle", "Hardy", "Hasty", "Impish", "Jolly", "Lax", "Lonely", "Mild", "Modest", "Naive", "Naughty", "Quiet", "Quirky", "Rash", "Relaxed", "Sassy", "Serious", "Timid"];
 const GENDERS = ['M', 'F'];
+const TYPE_TRANSLATIONS = {
+    normal: "Normal", fire: "Fuego", water: "Agua", grass: "Planta",
+    electric: "Eléctrico", ice: "Hielo", fighting: "Lucha", poison: "Veneno",
+    ground: "Tierra", flying: "Volador", psychic: "Psíquico", bug: "Bicho",
+    rock: "Roca", ghost: "Fantasma", dragon: "Dragón", steel: "Acero",
+    fairy: "Hada", dark: "Siniestro"
+};
+const NATURES = [
+    "Fuerte", "Huérfana", "Audaz", "Firme", "Pícara", 
+    "Osada", "Dócil", "Plácida", "Agitada", "Floja", 
+    "Miedosa", "Activa", "Seria", "Alegre", "Ingenua", 
+    "Modesta", "Afable", "Mansa", "Tímida", "Alocada", 
+    "Serena", "Amable", "Grosera", "Cauta", "Rara"
+];
+
+
 
 const getOrFetchSpeciesData = async (speciesId) => {
     const sqlFind = 'SELECT * FROM "PokemonSpecies" WHERE "SpeciesID" = $1';
@@ -27,13 +42,19 @@ const getOrFetchSpeciesData = async (speciesId) => {
         const basic = basicRes.data;
         const species = speciesRes.data;
 
-        const flavorTextEntry = species.flavor_text_entries.find(e => e.language.name === 'en');
+        const flavorTextEntry = species.flavor_text_entries.find(e => e.language.name === 'es') 
+                             || species.flavor_text_entries.find(e => e.language.name === 'en');
+        
+        const type1En = basic.types[0]?.type.name;
+        const type2En = basic.types[1]?.type.name;
+        const type1Es = type1En ? (TYPE_TRANSLATIONS[type1En] || type1En) : null;
+        const type2Es = type2En ? (TYPE_TRANSLATIONS[type2En] || type2En) : null;
 
         const newSpecies = {
             SpeciesID: basic.id,
             SpeciesName: basic.name,
-            Type1: basic.types[0]?.type.name || null,
-            Type2: basic.types[1]?.type.name || null,
+            Type1: type1Es,
+            Type2: type2Es,
             BaseHeight: basic.height / 10, 
             BaseWeight: basic.weight / 10, 
             SpriteURL: basic.sprites.front_default,
@@ -114,6 +135,10 @@ router.get("/mis-pokemon", verifyToken, async (req, res) => {
                 cp."Level",
                 cp."Gender",
                 cp."Nature",
+                TO_CHAR(
+                    (cp."DateCaptured" AT TIME ZONE 'UTC' AT TIME ZONE 'America/Mexico_City'), 
+                    'DD/MM/YYYY'
+                ) as fecha_simple,
                 cp."DateCaptured",
                 ps."SpeciesName",
                 ps."SpriteURL",
@@ -182,6 +207,66 @@ router.delete("/pokemon/:id", verifyToken, async (req, res) => {
     } catch (err) {
         console.error("Error en DELETE /api/pokemon/:id:", err.message);
         res.status(500).json({ error: "Error al liberar Pokémon." });
+    }
+});
+
+router.get("/random", async (req, res) => {
+    try {
+        const randomId = Math.floor(Math.random() * 1025) + 1;
+
+        const speciesData = await getOrFetchSpeciesData(randomId);
+
+        res.json({
+            id: speciesData.SpeciesID,
+            name: speciesData.SpeciesName, 
+            sprite: speciesData.SpriteURL,
+            flavorText: speciesData.FlavorText, 
+            types: [speciesData.Type1, speciesData.Type2] 
+        });
+
+    } catch (error) {
+        console.error("Error generando pokemon random:", error);
+        res.status(500).json({ error: "Error obteniendo pokemon de juego" });
+    }
+});
+
+router.delete("/admin/nuke-pokemon", verifyToken, async (req, res) => {
+    try {
+
+        await db.query('TRUNCATE TABLE "CapturedPokemon", "PokemonSpecies" RESTART IDENTITY CASCADE');
+        
+        console.log("⚠️ TABLAS POKEMON PURGADAS ⚠️");
+        res.json({ message: "Tablas de Pokémon y Especies reiniciadas a cero." });
+    } catch (error) {
+        console.error("Error al purgar DB:", error.message);
+        res.status(500).json({ error: "No se pudo reiniciar la base de datos." });
+    }
+});
+
+router.get("/pokedex", verifyToken, async (req, res) => {
+    try {
+        const sql = `
+            SELECT 
+                ps.*,
+                -- SUBCONSULTA: Busca el nombre del PRIMER entrenador que lo atrapó
+                (
+                    SELECT T."FirstName" || ' ' || T."LastName"
+                    FROM "CapturedPokemon" cp
+                    JOIN "Trainer" T ON cp."TrainerID" = T."TrainerID" 
+                    WHERE cp."SpeciesID" = ps."SpeciesID"
+                    ORDER BY cp."DateCaptured" ASC
+                    LIMIT 1
+                ) as "DescubiertoPor"
+            FROM "PokemonSpecies" ps
+            ORDER BY ps."SpeciesID" ASC
+        `;
+
+        const result = await db.query(sql);
+        res.json(result.rows);
+
+    } catch (error) {
+        console.error("Error al obtener la Pokedex:", error.message);
+        res.status(500).json({ error: "Error al cargar la enciclopedia." });
     }
 });
 

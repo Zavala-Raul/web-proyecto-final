@@ -1,81 +1,450 @@
 /* frontend/src/Galeria.css */
+
+/* --- 1. CONFIGURACIÓN GENERAL --- */
 .galeria-container {
-    padding: 20px;
+    padding: 40px 20px;
     max-width: 1200px;
     margin: 0 auto;
-    text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #2d3436;
 }
 
+/* --- 2. HEADER Y CONTROLES --- */
+.gallery-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+
+.gallery-header h2 {
+    font-size: 1.8rem;
+    margin: 0;
+    color: #2d3436;
+}
+
+.view-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.view-controls button {
+    background: white;
+    border: 1px solid #dfe6e9;
+    color: #636e72;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.view-controls button:hover {
+    background: #f5f6fa;
+    color: #2d3436;
+}
+
+.view-controls button.active {
+    background: #2d3436; /* Estilo minimalista oscuro */
+    color: white;
+    border-color: #2d3436;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* --- 3. VISTA GRID (TARJETAS) --- */
 .pokemon-grid {
     display: grid;
-    /* Esto crea columnas automáticas de mínimo 220px */
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* Un poco más anchas */
+    gap: 25px;
 }
 
 .pokemon-card {
     background: white;
-    border-radius: 12px;
-    padding: 15px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
-    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: 1px solid #f0f0f0;
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
+    overflow: hidden;
 }
 
 .pokemon-card:hover {
-    transform: translateY(-5px); /* Efecto de levitación */
-    box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    border-color: #dfe6e9;
 }
 
 .pokemon-card img {
-    width: 120px;
-    height: 120px;
-    image-rendering: pixelated; /* Para que los sprites se vean nítidos */
+    width: 140px;
+    height: 140px;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1)); /* Sombra a la silueta del Pokemon */
+    transition: transform 0.3s ease;
+}
+
+.pokemon-card:hover img {
+    transform: scale(1.1);
+}
+
+.card-info {
+    text-align: center;
+    width: 100%;
+    margin-top: 15px;
 }
 
 .card-info h3 {
-    margin: 10px 0 5px 0;
-    font-size: 1.2rem;
-    color: #333;
+    margin: 5px 0;
+    font-size: 1.3rem;
+    font-weight: 700;
 }
 
-.species-name {
-    color: #777;
-    font-size: 0.9rem;
-    font-style: italic;
+.card-subtext {
+    font-size: 0.85rem;
+    color: #b2bec3;
+    margin-bottom: 15px;
 }
 
+/* Inputs de edición en Grid */
+.edit-input {
+    width: 100%;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    border: 2px solid #74b9ff;
+    border-radius: 6px;
+    font-size: 1rem;
+    text-align: center;
+    outline: none;
+}
+
+/* Botones de acción en tarjetas */
 .card-actions {
-    margin-top: 15px;
     display: flex;
     gap: 10px;
-    width: 100%;
     justify-content: center;
+    margin-top: auto; /* Empuja los botones al fondo */
+    width: 100%;
 }
 
-button.btn-release {
-    background-color: #ff4444;
-    color: white;
+.btn-edit, .btn-release {
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+
+.btn-edit { background: #f1f2f6; color: #ffa502; }
+.btn-edit:hover { background: #ffa502; color: white; }
+
+.btn-release { background: #f1f2f6; color: #ff4757; }
+.btn-release:hover { background: #ff4757; color: white; }
+
+
+/* --- 4. VISTA LISTA (TABLA) --- */
+.pokemon-list-table {
+    width: 100%;
+    border-collapse: separate; /* Permite bordes redondeados */
+    border-spacing: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.pokemon-list-table th {
+    background-color: #f8f9fa;
+    padding: 18px 20px;
+    text-align: center;
+    font-weight: 600;
+    color: #636e72;
+    text-transform: uppercase;
     font-size: 0.8rem;
-    padding: 5px 10px;
+    letter-spacing: 0.5px;
 }
 
-button.btn-edit {
-    background-color: #ffbb33;
-    color: white;
-    font-size: 0.8rem;
-    padding: 5px 10px;
+.pokemon-list-table td {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #2d3436;
 }
 
-/* Estilos para el modo edición */
-.edit-input {
-    width: 80%;
+.pokemon-list-table tr:last-child td { border-bottom: none; }
+
+.pokemon-list-table tr:hover {
+    background-color: #f1fbfd; /* Color azul muy suave al pasar el mouse */
+}
+
+/* Botones pequeños de la lista */
+.btn-list {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-edit-small, .btn-release-small {
+    width: 32px;  /* Tamaño fijo cuadrado para fácil click */
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: transform 0.1s ease;
+}
+
+.btn-edit-small { background: #ffeaa7; color: #e17055; }
+.btn-edit-small:hover { background: #fdcb6e; transform: scale(1.1); }
+
+.btn-release-small { background: #ffcccc; color: #d63031; }
+.btn-release-small:hover { background: #ff7675; color: white; transform: scale(1.1); }
+
+
+/* --- 5. VISTA DETALLE (MODERNIZADA) --- */
+.detail-view-container {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    max-width: 900px;
+    margin: 20px auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.btn-back {
+    display: inline-block;
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #74b9ff;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.btn-back:hover { text-decoration: underline; }
+
+.detail-header {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detail-header h1 {
+    font-size: 2.5rem;
+    margin: 0;
+    background: linear-gradient(45deg, #2d3436, #636e72);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.detail-id {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #dfe6e9;
+    letter-spacing: -1px;
+}
+
+.detail-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 50px;
+    flex-wrap: wrap; /* Para móviles */
+}
+
+.detail-image {
+    flex: 0 0 300px; /* Ancho fijo para la imagen */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f8f9fa; /* Fondo gris muy claro */
+    border-radius: 20px;
+    padding: 30px;
+}
+
+.detail-image img {
+    width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
+}
+
+.detail-stats {
+    flex: 1;
+    font-size: 1.1rem;
+}
+
+.detail-stats p {
+    padding: 12px 0;
+    border-bottom: 1px dashed #eee;
+    margin: 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.detail-stats strong {
+    color: #636e72;
+    font-weight: 600;
+}
+
+/* Estilos de Edición en Detalle */
+.edit-mode-detail {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.detail-edit-input {
+    font-size: 2rem;
+    font-weight: bold;
+    border: none;
+    border-bottom: 3px solid #74b9ff;
     padding: 5px;
-    margin: 5px 0;
-    border: 1px solid #ccc;
+    outline: none;
+    color: #2d3436;
+    width: 100%;
+    background: transparent;
+}
+
+/* Botones de Guardar/Cancelar en detalle */
+.edit-mode-detail button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.edit-mode-detail button:first-of-type { /* Guardar */
+    background: #00b894; 
+    color: white;
+}
+.edit-mode-detail button:last-of-type { /* Cancelar */
+    background: #dfe6e9; 
+    color: #636e72;
+}
+
+.detail-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.detail-actions button {
+    font-size: 1.5rem; 
+    padding: 15px;
+    border-radius: 50%; 
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.type-badge {
+    padding: 4px 10px;
+    border-radius: 20px; 
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    display: inline-block;
+    margin: 2px;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border: 1px solid rgba(255,255,255,0.3); 
+}
+
+.type-normal { background-color: #A8A77A; }
+.type-fuego { background-color: #EE8130; }
+.type-agua { background-color: #6390F0; }
+.type-planta { background-color: #7AC74C; }
+.type-eléctrico { background-color: #F7D02C; }
+.type-hielo { background-color: #96D9D6; }
+.type-lucha { background-color: #C22E28; }
+.type-veneno { background-color: #A33EA1; }
+.type-tierra { background-color: #E2BF65; }
+.type-volador { background-color: #A98FF3; }
+.type-psíquico { background-color: #F95587; } 
+.type-bicho { background-color: #A6B91A; }
+.type-roca { background-color: #B6A136; }
+.type-fantasma { background-color: #735797; }
+.type-siniestro { background-color: #705746; } 
+.type-dragón { background-color: #6F35FC; } 
+.type-acero { background-color: #B7B7CE; }
+.type-hada { background-color: #D685AD; }
+.type-unknown { background-color: #95a5a6; }
+
+.card-types {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    margin: 10px 0;
+    flex-wrap: wrap;
+}
+
+.detail-type-container span {
+    display: flex;
+    gap: 5px;
+}
+
+/* Input dentro de la tabla */
+.table-edit-input {
+    width: 90%;
+    max-width: 140px;
+    padding: 2px 6px;
+    height: 26px;        /* Altura fija controlada */
+    font-size: 0.9rem;   /* Texto un poco más pequeño para encajar */
+    border: 1px solid #74b9ff; /* Borde delgado (1px en vez de 2px) */
     border-radius: 4px;
+    outline: none;       /* Quita el borde azul feo por defecto al hacer click */
+    background-color: #f0f8ff; /* Un fondo azul muy tenue para diferenciarlo */
+    color: #2d3436;
+    font-family: inherit;
+}
+
+/* Botones pequeños de Guardar/Cancelar en la tabla */
+.btn-save-small, .btn-cancel-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: transform 0.1s ease;
+}
+
+.btn-save-small {
+    background-color: #55efc4;
+    color: #00b894;
+}
+.btn-save-small:hover {
+    background-color: #00b894;
+    color: white;
+}
+
+.btn-cancel-small {
+    background-color: #dfe6e9;
+    color: #636e72;
+}
+.btn-cancel-small:hover {
+    background-color: #b2bec3;
+    color: white;
 }

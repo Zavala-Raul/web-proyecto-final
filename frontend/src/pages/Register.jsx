@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import './register.css';
 import { useNavigate } from 'react-router-dom'
+import loginIcon from '../assets/login-icon.png';
 
 const API_URL = 'http://localhost:4000/api';
 
@@ -61,41 +63,44 @@ function Register()
 
     return (
         <div className="register-container">
-            <h2>Crear Cuenta de Entrenador</h2>
+            <div className='register-header'>
+                <img className="register-icon" src={loginIcon} alt="Pokeball"></img>
+                <h2>CREAR CUENTA DE ENTRENADOR</h2>
+            </div>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label>Nombre:</label>
                     <input 
                         type="text"
+                        placeholder='Nombre'
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                     />
                 </div>
                 <div className="form-group">
-                    <label>Apellido:</label>
                     <input 
                         type="text"
+                        placeholder='Apellido'
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                     />
                 </div>
                 <div className="form-group">
-                    <label>Usuario (Username):</label>
-                    <input 
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                    />
+                        <input 
+                            type="text"
+                            placeholder='Nombre del usuario'
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                        />
                 </div>
                 <div className="form-group">
-                    <label>Contraseña:</label>
                     <input 
                         type="password"
+                        placeholder='Contraseña'
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
                 </div>
-                
+                 
                 <button type="submit">Registrarme</button>
             </form>
 

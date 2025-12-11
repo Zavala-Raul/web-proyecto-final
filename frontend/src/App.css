@@ -1,3 +1,6 @@
+/* =========================================
+   BASE Y LAYOUT (Prioridad: Secundaria)
+   ========================================= */
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -14,13 +17,13 @@ body {
 
 .App {
   background-color: #dddddd; 
-  
   max-width: 1200px; 
-  
   margin: 0 auto; 
   min-height: 100vh; 
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); 
+  position: relative; /* Importante para el posicionamiento absoluto de hijos */
 
+  /* Barra superior oscura */
   & .dark-bar {
     width: 100%;
     height: 60px;
@@ -32,6 +35,7 @@ body {
     z-index: 10;
   }
 
+  /* El "trapecio" o pestaña debajo de la barra */
   & .dark-bar::after {
     content: "";
     position: absolute;
@@ -39,12 +43,102 @@ body {
     left: 50%;
     transform: translateX(-50%); 
     
-    /*trapecio con CSS */
+    /* Geometría del trapecio */
     height: 0;
-    width: 300px; /* Ancho de la parte plana de la pestaña */
-    border-top: 15px solid #424242; 
-    border-left: 15px solid transparent; /* Crea el borde diagonal izquierdo */
-    border-right: 15px solid transparent; /* Crea el borde diagonal derecho */
+    width: 300px; 
+    border-top: 16px solid #424242; 
+    border-left: 15px solid transparent; 
+    border-right: 15px solid transparent; 
   }
 }
 
+/* =========================================
+   NAVEGACIÓN (Prioridad: Secundaria)
+   Diseño moderno con iconos y estados activos
+   ========================================= */
+.main-nav {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  
+  text-decoration: none; 
+  background-color: #333;
+  color: white;
+  
+  padding: 10px 20px;
+  border-radius: 8px; 
+  border: 2px solid transparent; 
+  
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.nav-btn:hover {
+  background-color: #555;
+  transform: translateY(-2px); 
+  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+/* Estado activo (cuando estás en esa página) */
+.nav-btn.active {
+  background-color: #1f1f1f; 
+  border-color: #6390F0;  
+  box-shadow: 0 0 10px rgba(99, 144, 240, 0.4);
+}
+
+.logout-btn {
+  background-color: #c62828;
+  border: none;
+  margin-left: 10px;
+  
+  width: auto;       
+  flex-grow: 0;      
+  flex-shrink: 0;    
+  display: inline-flex; 
+}
+
+.logout-btn:hover {
+  background-color: #d32f2f;
+  box-shadow: 0 0 10px rgba(211, 47, 47, 0.4);
+}
+
+/* =========================================
+   UTILIDADES LEGACY (De la Principal)
+   Se mantienen por si se usan DENTRO de las páginas
+   (Game, Gallery, Pokedex) para no romper diseños internos.
+   ========================================= */
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 8px;     
+  text-decoration: none;   
+  font-weight: 600;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  font-family: inherit;    
+}
+
+.btn-primary {
+  background-color: #4a90e2; 
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #357abd;
+  transform: translateY(-2px); 
+}

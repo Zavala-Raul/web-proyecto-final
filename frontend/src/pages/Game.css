@@ -1,4 +1,31 @@
-/* frontend/src/Game.css */
+/* frontend/src/pages/Game.css */
+
+:root {
+  /* --- BIBLIOTECA DE COLORES (Tipos de Pokémon) --- */
+ --type-normal:    #A8A77Acc;
+  --type-fuego:     #EE8130cc;
+  --type-agua:      #6390F0cc;
+  --type-planta:    #7AC74Ccc;
+  --type-eléctrico: #F7D02Ccc; /* Ojo al acento */
+  --type-hielo:     #96D9D6cc;
+  --type-lucha:     #C22E28cc;
+  --type-veneno:    #A33EA1cc;
+  --type-tierra:    #E2BF65cc;
+  --type-volador:   #A98FF3cc;
+  --type-psíquico:  #F95587cc; /* Ojo al acento */
+  --type-bicho:     #A6B91Acc;
+  --type-roca:      #B6A136cc;
+  --type-fantasma:  #735797cc;
+  --type-siniestro: #705746cc; /* Antes 'dark' */
+  --type-dragón:    #6F35FCcc; /* Ojo al acento */
+  --type-acero:     #B7B7CEcc;
+  --type-hada:      #D685ADcc;
+  --type-unknown:   #95a5a6cc;
+  
+  --type-default:  #ffffff;
+}
+
+
 .game-container {
     text-align: center;
     padding: 20px;
@@ -6,30 +33,41 @@
     margin: 0 auto;
 }
 
+/* --- Contenedor de la Imagen (Esfera blanca) --- */
 .pokemon-image-container {
     margin: 20px 0;
     height: 200px; 
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 90%;
+    /* Fondo radial suave para resaltar el sprite */
+    background: radial-gradient(circle, #f0f0f0 20%, #ffffff 100%);
+    border-radius: 10px;
+    border: 2px solid #ddd;
+    margin-bottom: 10px;
 }
 
 .pokemon-img {
     width: 200px;
     height: 200px;
     transition: filter 0.3s ease; 
+    object-fit: contain;
 }
 
+/* Efecto silueta (Pokémon negro si no se ha adivinado) */
 .silhouette {
     filter: brightness(0); 
-    pointer-events: none; 
+    pointer-events: none; /* Evita arrastrar o click derecho para ver imagen */
 }
 
+/* --- Textos y Mensajes --- */
 .hint-text {
     font-size: 24px;
-    letter-spacing: 5px;
+    letter-spacing: 5px; /* Espaciado estilo ahorcado: _ _ _ */
     font-weight: bold;
     margin-bottom: 20px;
+    color: #333;
 }
 
 .feedback-msg {
@@ -38,5 +76,154 @@
     font-size: 1.2rem;
 }
 
-.success { color: green; }
-.error { color: red; }
+.success { color: #2e7d32; }
+.error { color: #c62828; }
+
+/* --- Pistas de Texto y Flavor --- */
+.hints-area {
+    min-height: 40px; /* Evita saltos de layout cuando aparece texto */
+    margin-bottom: 10px;
+}
+
+.flavor-text-hint {
+    font-style: italic;
+    color: #444;
+    background-color: rgba(255, 255, 255, 0.6);
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.visual-hint-msg {
+    color: #d32f2f;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+
+.generation-card {
+    position: relative;
+    width: 100%;
+    
+    background-color: #121212;
+    
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 30px 30px; 
+    
+    border-top: 8px solid transparent;    
+    border-bottom: 8px solid transparent; 
+    
+    border-image: linear-gradient(
+        90deg, 
+        #8c8c8c 0%,  
+        #d4d4d4 25%, 
+        #ffffff 50%, 
+        #d4d4d4 75%, 
+        #8c8c8c 100% 
+    ) 1;
+    
+    display: flex;         
+    justify-content: center; 
+    align-items: center;     
+    flex-direction: row;     
+
+    padding: 50px 0;         
+    margin-top: 20px;
+    box-sizing: border-box;  
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.game-card {
+    border: 6px solid transparent; 
+    
+    background: 
+        linear-gradient(135deg, var(--color-1, var(--type-default)) 0%, var(--color-2, var(--type-default)) 100%) padding-box,
+        linear-gradient(
+            135deg, 
+            #8c8c8c 0%,  
+            #d4d4d4 25%, 
+            #ffffff 50%, 
+            #d4d4d4 75%, 
+            #8c8c8c 100% 
+        ) border-box;
+
+    margin: 0 !important;   
+    width: 90%;             
+    max-width: 400px;        
+    border-radius: 20px;
+    padding: 20px;
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+    box-sizing: border-box; 
+}
+
+/* --- Inputs y Botones --- */
+.game-input {
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    padding: 15px;
+    font-size: 16px;
+    outline: none;
+    width: 80%;
+    display: block;
+    margin: 0 auto 15px;
+    box-sizing: border-box;
+    text-align: center;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.game-input:hover, .game-input:focus {
+    box-shadow: 0 0 0 2px #757575;
+}
+
+.game-input::placeholder {
+    color: #000000;
+    font-weight: normal;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 80%;
+    margin: 0 auto;
+    flex-wrap: wrap;
+}
+
+.button-group button {
+    background-color: #757575;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    flex: 1;
+    min-width: 80px;
+}
+
+/* Botones específicos (Opcional si quieres colores distintos) */
+.btn-guess { background-color: #2196f3 !important; }
+.btn-guess:hover { background-color: #1976d2 !important; }
+
+.btn-hint { background-color: #ff9800 !important; }
+.btn-hint:hover { background-color: #f57c00 !important; }
+
+.btn-skip { background-color: #f44336 !important; }
+.btn-skip:hover { background-color: #d32f2f !important; }
+
+.button-group button:active {
+    transform: scale(0.98);
+}

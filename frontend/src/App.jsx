@@ -1,31 +1,30 @@
 // frontend/src/App.jsx
 import React from 'react';
-import { Routes, Route, Navigate, useNavigate, Link } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, Link, useLocation } from 'react-router-dom';
+import { FaQuestionCircle, FaLaptop, FaSignOutAlt, FaBookOpen } from 'react-icons/fa'; 
+
 import Register from './pages/Register'; 
 import Login from './pages/login';
 import Game from './pages/Game'; 
 import Gallery from './pages/Gallery';
+import Pokedex from './pages/Pokedex'; 
 import './App.css'; 
-
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
+  if (!token) return <Navigate to="/login" replace />;
   return children;
 };
 
 const PublicRoute = ({ children }) => {
   const token = localStorage.getItem('token');
-  if (token) {
-    return <Navigate to="/game" replace />;
-  }
+  if (token) return <Navigate to="/game" replace />;
   return children;
 };
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation(); 
   const isLoggedIn = !!localStorage.getItem('token'); 
 
   const handleLogout = () => {
@@ -38,17 +37,38 @@ function App() {
     <div className="App">
       <section className="dark-bar"></section>
       <header>
-        {/* MENÚ DE NAVEGACIÓN: Solo se ve si estás logueado */}
         {isLoggedIn && (
             <>
               <h1>Poké-Captura</h1>
-              <nav style={{ display: 'flex', gap: '20px', alignItems: 'center', justifyContent: 'center', marginTop: '10px' }}>
-                  {/* Usamos Link para navegar sin recargar la página */}
-                  <Link to="/game" className="nav-link">🎮 Jugar</Link>
-                  <Link to="/gallery" className="nav-link">📸 Mi PC</Link>
+              
+              <nav className="main-nav">
+                  <Link 
+                    to="/game" 
+                    className={`nav-btn ${location.pathname === '/game' ? 'active' : ''}`}
+                  >
+                    <FaQuestionCircle size={20} /> 
+                    <span>Adivinar</span>
+                  </Link>
+
+                  <Link 
+                    to="/gallery" 
+                    className={`nav-btn ${location.pathname === '/gallery' ? 'active' : ''}`}
+                  >
+                    <FaLaptop size={20} />
+                    <span>Mi PC</span>
+                  </Link>
                   
-                  <button onClick={handleLogout} style={{ backgroundColor: '#ff4444', color: 'white' }}>
-                      Cerrar Sesión
+                  <Link 
+                    to="/pokedex" 
+                    className={`nav-btn ${location.pathname === '/pokedex' ? 'active' : ''}`}
+                  >
+                    <FaBookOpen size={20} />
+                    <span>Pokédex</span>
+                  </Link>
+                  
+                  <button onClick={handleLogout} className="nav-btn logout-btn">
+                      <FaSignOutAlt size={20} />
+                      <span>Salir</span>
                   </button>
               </nav>
             </>
@@ -57,42 +77,13 @@ function App() {
       
       <main>
         <Routes>
-          {/* CASO 1: Ruta Raíz 
-             Si entras a '/', el PublicRoute decidirá:
-             - Si estás logueado -> Te manda a /game
-             - Si NO estás logueado -> Te manda a /login (porque el hijo es Login)
-          */}
           <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
           
-          {/* CASO 2: Rutas Públicas (Login/Register)
-             Las envolvemos en PublicRoute para que los logueados no entren aquí
-          */}
-          <Route path="/login" element={
-              <PublicRoute>
-                  <Login />
-              </PublicRoute>
-          } />
-          
-          <Route path="/register" element={
-              <PublicRoute>
-                  <Register />
-              </PublicRoute>
-          } />
-          
-          {/* CASO 3: Rutas Privadas (Game/Gallery)
-             Las envolvemos en ProtectedRoute para que los NO logueados no entren
-          */}
-          <Route path="/game" element={
-              <ProtectedRoute>
-                  <Game />
-              </ProtectedRoute>
-          } />
-          
-          <Route path="/gallery" element={
-              <ProtectedRoute>
-                  <Gallery />
-              </ProtectedRoute>
-          } />
+          <Route path="/game" element={<ProtectedRoute><Game /></ProtectedRoute>} />
+          <Route path="/gallery" element={<ProtectedRoute><Gallery /></ProtectedRoute>} />
+          <Route path="/pokedex" element={<ProtectedRoute><Pokedex /></ProtectedRoute>} />
         </Routes>
       </main>
     </div>

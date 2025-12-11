@@ -1,0 +1,238 @@
+.pokedex-container {
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.pokedex-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 3px solid #e74c3c; /* Rojo Pokédex */
+    padding-bottom: 15px;
+}
+
+.pokedex-search {
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    width: 300px;
+    font-size: 1rem;
+}
+
+/* GRID */
+.pokedex-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.pokedex-card {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s, border-color 0.2s;
+    border: 2px solid transparent;
+    position: relative;
+}
+
+.pokedex-card:hover {
+    transform: translateY(-3px);
+    border-color: #3498db;
+}
+
+.dex-num {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 0.8rem;
+    color: #999;
+    font-weight: bold;
+}
+
+.pokedex-card img {
+    width: 96px;
+    height: 96px;
+    image-rendering: pixelated;
+}
+
+.pokedex-card h3 {
+    margin: 5px 0 10px 0;
+    font-size: 1.1rem;
+    text-transform: capitalize;
+}
+
+.types-mini {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    transform: scale(0.8); /* Badges un poco más pequeños en la tarjeta */
+}
+
+/* MODAL / OVERLAY */
+.pokedex-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.pokedex-modal-content {
+    background: white;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 800px;
+    padding: 30px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #666;
+}
+
+.dex-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.dex-detail-header h2 {
+    margin: 0;
+    font-size: 2.5rem;
+    text-transform: capitalize;
+}
+
+.dex-category {
+    color: #7f8c8d;
+    font-style: italic;
+    font-size: 1.1rem;
+}
+
+.dex-big-num {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #f1f2f6;
+    line-height: 1;
+}
+
+.dex-detail-body {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.dex-visuals {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+}
+
+.dex-visuals img {
+    width: 200px;
+    height: 200px;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2));
+}
+
+.dex-flavor {
+    margin-top: 20px;
+    font-style: italic;
+    color: #555;
+    line-height: 1.5;
+}
+
+.dex-data {
+    flex: 1.5;
+}
+
+.physical-data {
+    display: flex;
+    gap: 30px;
+    background: #ecf0f1;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+/* BARRAS DE ESTADÍSTICA */
+.stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stat-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stat-label {
+    width: 60px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.stat-track {
+    flex: 1;
+    height: 10px;
+    background: #eee;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.stat-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s ease-out;
+}
+
+.stat-value {
+    width: 30px;
+    text-align: right;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.discoverer-badge {
+    font-size: 0.75rem;
+    color: #f1c40f; 
+    background: #2d3436; 
+    padding: 2px 8px;
+    border-radius: 10px;
+    display: inline-block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.unknown-label {
+    font-size: 0.7rem;
+    color: #bdc3c7;
+    font-style: italic;
+}
